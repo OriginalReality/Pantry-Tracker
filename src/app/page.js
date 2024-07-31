@@ -1,7 +1,7 @@
 'use client'
 import "../../styles/globals.css";
-import { Grid, Paper, Typography, Button } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { Grid, Paper, Typography, Button, Skeleton } from '@mui/material';
 import { firebaseConfig } from "@/firebaseConfig";
 import { doc, getDoc, collection } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
@@ -15,20 +15,64 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const docRef = doc(collection(db, 'pantry'), 'pantryItems'); // Reference to your document
-      const docSnap = await getDoc(docRef);
+      try {
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const docRef = doc(collection(db, 'pantry'), 'pantryItems'); // Reference to your document
+        const docSnap = await getDoc(docRef);
 
-      if (docSnap.exists()) {
-        setPantryItems(docSnap.data());
-      } else {
-        console.log("No such document!");
+        if (docSnap.exists()) {
+          setPantryItems(docSnap.data());
+        } else {
+          console.log("No such document!");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+
     fetchData();
   }, []);
+
+  if (loading) {
+    return (
+      <main style={{ marginTop: '10%' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1>Pantry Tracker</h1>
+          <h1>Search bar</h1>
+        </div>
+        <Grid container spacing={2} padding='5%'>
+          {Array.from({ length: 4 }).map((_, index) => (
+            <Grid item xs={3} key={index}>
+              <Paper>
+                <Skeleton variant="text" height={40} />
+                <Skeleton variant="text" height={40} />
+              </Paper>
+            </Grid>
+          ))}
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+        </Grid>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main style={{ marginTop: '10%' }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1>Pantry Tracker</h1>
+          <h1>Search bar</h1>
+        </div>
+        <Typography color="error" align="center">
+          Error: {error}
+        </Typography>
+      </main>
+    );
+  }
 
 
   return (

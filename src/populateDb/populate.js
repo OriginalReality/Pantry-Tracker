@@ -1,4 +1,3 @@
-// src/utils/addSampleData.js
 const { db } = require('../firebaseConfig');
 const { doc, setDoc, collection } = require('firebase/firestore');
 
