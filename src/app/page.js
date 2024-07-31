@@ -1,14 +1,17 @@
-import Image from "next/image";
+'use client'
 import "../../styles/globals.css";
-import { Grid, Paper, Typography } from '@mui/material';
+import { Grid, Paper, Typography, Button } from '@mui/material';
 
 const sampleData = {"Apple": 1, "Banana": 2, "Orange": 3, "Mango": 4, "Grape": 10};
 
 export default function Home() {
   return (
-    <main style={{marginTop:'10%'}}>
-      <h1 style={{textAlign:'center', padding:'2%'}}>Pantry Tracker</h1>
-      <Grid container spacing={2} padding={'5%'}>
+    <main style={{marginTop: '10%'}}>
+      <div style={{textAlign: 'center'}}>
+        <h1>Pantry Tracker</h1>
+        <h1>Search bar</h1>
+      </div>
+      <Grid container spacing={2} padding='5%'>
         {Object.entries(sampleData).map(([item, count], index) => (
           <Grid item xs={3} key={index}>
             <Paper>
@@ -21,6 +24,11 @@ export default function Home() {
             </Paper>
           </Grid>
         ))}
+        <Grid item xs={3}>
+          <Button variant="contained" color="primary" onClick={() => alert('clicked')}>
+            Add Entry
+          </Button>
+        </Grid>
       </Grid>
     </main>
   );
