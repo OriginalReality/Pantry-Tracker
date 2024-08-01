@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Grid, Paper, Typography, Button, Skeleton, 
          Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { firebaseConfig } from "@/firebaseConfig";
-import { doc, getDoc, collection } from 'firebase/firestore';
+import { doc, getDoc, collection, setDoc, updateDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
@@ -15,7 +15,7 @@ export default function Home() {
   const [open, setOpen] = useState(false); 
   const [item, setItem] = useState('');
   const [count, setCount] = useState('');
-
+  const [db, setDb] = useState(null); 
   const handleClickOpen = () => {
     setOpen(true); 
   }
@@ -24,11 +24,45 @@ export default function Home() {
     setOpen(false);
   }
 
-  const handleAddEntry = () => {
+  const handleAddEntry = async () => {
     if (item && count) {
-      setItem('');
-      setCount('');
-      handleClose();
+      
+      try {
+        const pantryDocRef = doc(db, 'pantry', 'pantryItems');
+  
+        // Get the current document
+        const pantryDoc = await getDoc(pantryDocRef);
+  
+        if (pantryDoc.exists()) {
+          // If the document exists, get its data
+          const pantryData = pantryDoc.data();
+  
+          // Check if the item already exists
+          if (pantryData[item]) {
+            // If the item exists, update its count
+            pantryData[item] = parseInt(pantryData[item], 10) + parseInt(count, 10);
+          } else {
+            // If the item does not exist, add it with the count
+            pantryData[item] = parseInt(count);
+          }
+  
+          // Update the document with the new data
+          await setDoc(pantryDocRef, pantryData);
+        } else {
+          // If the document does not exist, create it with the item and count
+          await setDoc(pantryDocRef, { [item]: parseInt(count) });
+        }
+  
+        setItem('');
+        setCount('');
+        const docRef = doc(collection(db, 'pantry'), 'pantryItems');
+        const docSnap = await getDoc(docRef);
+        setPantryItems(docSnap.data());
+        handleClose();
+      } catch (error) {
+        console.error("Error adding/updating entry: ", error);
+        alert(error);
+      }
     } else {
       alert('Please fill in both fields');
     }
@@ -39,6 +73,7 @@ export default function Home() {
       try {
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        setDb(db); 
         const docRef = doc(collection(db, 'pantry'), 'pantryItems');
         const docSnap = await getDoc(docRef);
 
@@ -134,7 +169,7 @@ export default function Home() {
             fullWidth
             variant="standard"
             value={item}
-            onChange={(e) => setItem(e.target.value)}
+            onChange={(e) => setItem(e.target.value.toLowerCase())}
           />
           <TextField
             margin="dense"
