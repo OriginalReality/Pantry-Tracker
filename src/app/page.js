@@ -52,7 +52,7 @@ export default function Home() {
         }, {});
       setFilteredData(filteredItems);
     }
-  }, [searchText]);
+  }, [searchText, pantryItems]);
 
   const handleUpdateEntry = async (updateType) => {
     if (item && count) {
@@ -72,14 +72,17 @@ export default function Home() {
                 0,
                 parseInt(pantryData[item], 10) - parseInt(count, 10)
               );
+              if (pantryData[item] === 0) {
+                delete pantryData[item];
+              }
             }
-          } else if (updateType == 'add') {
-            pantryData[item] = parseInt(count);
+          } else if (updateType === 'add') {
+            pantryData[item] = parseInt(count, 10);
           }
 
           await setDoc(pantryDocRef, pantryData);
         } else if (updateType === 'add') {
-          await setDoc(pantryDocRef, { [item]: parseInt(count) });
+          await setDoc(pantryDocRef, { [item]: parseInt(count, 10) });
         }
 
         setItem('');
