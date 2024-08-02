@@ -15,7 +15,7 @@ import {
   Stack,
 } from '@mui/material';
 import { firebaseConfig } from '@/firebaseConfig';
-import { doc, getDoc, collection, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, setDoc } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 
